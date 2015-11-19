@@ -1,12 +1,32 @@
-import sys
+﻿import sys
 sys.path.append('../LabsAll/Labs')
 from pico2d import *
 
 import game_framework
-import time
+import timer_func
+from threading import Timer, Thread, Event
+
 # game object class here
 running = None
-time_start, time_end = 0,0
+
+class perpetualTimer():
+
+    def __init__(self,t,hFunction):
+        self.t=t
+        self.hFunction = hFunction
+        self.thread = Timer(self.t,self.handle_function)
+
+    def handle_function(self):
+        self.hFunction()
+        self.thread = Timer(self.t,self.handle_function)
+        self.thread.start()
+
+    def start(self):
+        self.thread.start()
+
+    def cancle(self):
+        self.thread.cancel()
+
 class Map:
     def __init__(self):
         Map.MAP_CAVE1 = load_image('cave1.png')
@@ -14,29 +34,29 @@ class Map:
     def draw(self):
         self.MAP_CAVE1.clip_draw(0, 0, 800, 600, 400, 300)
 
-class Tear:
+#class Tear:
 class Isaac:
 
     LEFT_RUN, RIGHT_RUN, UP_RUN, DOWN_RUN, LEFT_STAND, RIGHT_STAND, UP_STAND, DOWN_STAND = 0, 1, 2, 3, 4, 5, 6, 7
 
     def handle_left_run(self):
         self.Lframe = (self.Lframe + 1) % 10
-        if self.x > 100:
+        if self.x > 110:
             self.x -= 8
 
     def handle_right_run(self):
         self.Rframe = (self.Rframe + 1) % 10
-        if self.x < 800 - 100:
+        if self.x < 800 - 110:
             self.x += 8
 
     def handle_up_run(self):
         self.Uframe = (self.Uframe + 1) % 10
-        if self.y < 600 - 100:
+        if self.y < 600 - 110:
             self.y += 8
 
     def handle_down_run(self):
         self.Dframe = (self.Dframe + 1) % 10
-        if self.y > 130:
+        if self.y > 137:
             self.y -= 8
 
     def handle_stand(self):
@@ -135,7 +155,7 @@ def update():
     map.draw()
     isaac.draw()
     update_canvas()
-    delay(0.05)         # 이부분은 나중에 없애고 타이머로 하는게 나을거같다
+    #delay(0.05)         # 이부분은 나중에 없애고 타이머로 하는게 나을거같다
 
 def draw():
     map.draw()
