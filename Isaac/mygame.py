@@ -1,4 +1,4 @@
 ﻿import game_framework
-import Isaac_move
-game_framework.run(Isaac_move)
+import main_state
+game_framework.run(main_state)
 # fill here

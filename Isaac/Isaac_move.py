@@ -3,29 +3,10 @@ sys.path.append('../LabsAll/Labs')
 from pico2d import *
 
 import game_framework
-import timer_func
 from threading import Timer, Thread, Event
 
 # game object class here
 running = None
-
-class perpetualTimer():
-
-    def __init__(self,t,hFunction):
-        self.t=t
-        self.hFunction = hFunction
-        self.thread = Timer(self.t,self.handle_function)
-
-    def handle_function(self):
-        self.hFunction()
-        self.thread = Timer(self.t,self.handle_function)
-        self.thread.start()
-
-    def start(self):
-        self.thread.start()
-
-    def cancle(self):
-        self.thread.cancel()
 
 class Map:
     def __init__(self):
@@ -34,7 +15,6 @@ class Map:
     def draw(self):
         self.MAP_CAVE1.clip_draw(0, 0, 800, 600, 400, 300)
 
-#class Tear:
 class Isaac:
 
     LEFT_RUN, RIGHT_RUN, UP_RUN, DOWN_RUN, LEFT_STAND, RIGHT_STAND, UP_STAND, DOWN_STAND = 0, 1, 2, 3, 4, 5, 6, 7
@@ -73,26 +53,6 @@ class Isaac:
                     UP_STAND: handle_stand,
                     DOWN_STAND: handle_stand
 }
-
-    def fire_tear(self):
-        global time_start, time_end
-        if isaac.fireDir == 1:
-            time_end = time.time()
-            if (time_end - time_start) % 1000 == 0:
-                isaac.fire = True
-        elif isaac.fireDir == 2:
-            time_end = time.time()
-            if (time_end - time_start) % 1000 == 0:
-                isaac.fire = True
-        elif isaac.fireDir == 3:
-            time_end = time.time()
-            if (time_end - time_start) % 1000 == 0:
-                isaac.fire = True
-        elif isaac.fireDir == 4:
-            time_end = time.time()
-            if (time_end - time_start) % 1000 == 0:
-                isaac.fire = True
-
     def updateS(self):
         self.handle_state[self.state](self)
         pass

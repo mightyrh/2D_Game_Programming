@@ -1,8 +1,5 @@
-﻿import sys
-sys.path.append('../LabsAll/Labs')
-from pico2d import *
+﻿from pico2d import *
 
-import game_framework
 
 running = None
 
@@ -11,68 +8,76 @@ running = None
 class Isaac:
 
     PIXEL_PER_METER = (50.0 / 1.0)      # 50 pixel 1 meter
-    RUN_SPEED_MPS = 1.0
+    RUN_SPEED_MPS = 5.0
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 10
 
     head = None
     body = None
 
-    LEFT_RUN, RIGHT_RUN, UP_RUN, DOWN_RUN, LEFT_STAND, RIGHT_STAND, UP_STAND, DOWN_STAND = 0, 1, 2, 3, 4, 5, 6, 7
+    LEFT_RUN, RIGHT_RUN, UP_RUN, DOWN_RUN, STAND = 0, 1, 2, 3, 4
+
     def __init__(self):
         self.x, self.y = 480, 270
         self.total_frames = 0.0
-        self.left_run_frame, self.right_run_frame, self.up_run_frame, self.down_run_frame
-        self.state = DOWN_STAND
-        if body == None:
-            Isaac.body = load_image('resources\graghpics\resources\gfx\characters\costumes\costume_000_basicbody.png')
-        if head == None:
-            Isaac.Isaac = load_image('resources\graghpics\resources\gfx\characters\costumes\heads.png')
+        self.frame = 0
+        self.head_frame = 0
+        self.state = self.STAND
+        self.speed = 0
+        self.uspeed = 0
+        self.body_and_head = load_image('body_and_head.png')
 
     def update(self, frame_time):
-        distance = Isaac.RUN_SPEED_PPS * frame_time
-        self.total_frames += 1.0
-        self.frame = (self.frame + 1) % 10
+        self.distance = Isaac.RUN_SPEED_PPS * frame_time
+        self.total_frames += Isaac.FRAMES_PER_ACTION * Isaac.ACTION_PER_TIME * frame_time
+        self.frame = int(self.total_frames) % 10
+        self.x = (self.x + frame_time * self.speed)
+        self.y = (self.y + frame_time * self.uspeed)
 
     def draw(self):
-        if self.state == LEFT_RUN:
-            self.body.clip_draw(self.frame * 50, 0, 50, 50, self.x, self.y, 50, 50)
-            pass
-        elif self.state == RIGHT_RUN:
-            self.body.clip_draw(self.frame * 50, 0, 50, 50, self.x, self.y, 50, 50)
-            pass
-        elif self.state == UP_RUN:
-            pass
-        elif self.state == DOWN_RUN:
-            pass
-        elif self.state == LEFT_STAND:
-            pass
-        elif self.state == RIGHT_STAND:
-            pass
-        elif self.state == UP_STAND:
-            pass
-        elif self.state == DOWN_STAND:
-            pass
-def handle_events():
-    global running, time_start
-    events = get_events()
-    for event in events:
-        if event.type == SDL_QUIT:
-            game_framework.quit()
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            game_framework.quit()
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
-            pass
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_d:
-            pass
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_s:
-            pass
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_w:
-            pass
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_LEFT:
-            pass
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT:
-            pass
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_UP:
-            pass
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_DOWN:
-            pass
+        if self.state == self.LEFT_RUN:
+            self.body_and_head.clip_draw((9 - self.frame) * 50, 50 * 1, 50, 50, self.x, self.y - 17, 60, 60)
+            self.body_and_head.clip_draw(50 * 7, 0, 50, 50, self.x, self.y, 60, 60)
+        elif self.state == self.RIGHT_RUN:
+            self.body_and_head.clip_draw(self.frame * 50, 50 * 2, 50, 50, self.x, self.y - 17, 60, 60)
+            self.body_and_head.clip_draw(50 * 2, 0, 50, 50, self.x, self.y, 60, 60)
+        elif self.state == self.UP_RUN:
+            self.body_and_head.clip_draw(self.frame * 50, 50 * 3, 50, 50, self.x, self.y - 17, 60, 60)
+            self.body_and_head.clip_draw(50 * 4, 0, 50, 50, self.x, self.y, 60, 60)
+        elif self.state == self.DOWN_RUN:
+            self.body_and_head.clip_draw(self.frame * 50, 50 * 3, 50, 50, self.x, self.y - 17, 60, 60)
+            self.body_and_head.clip_draw(50 * 0, 0, 50, 50, self.x, self.y, 60, 60)
+        elif self.state == self.STAND:
+            self.body_and_head.clip_draw(0, 50 * 3, 50, 50, self.x, self.y - 17, 60, 60)
+            self.body_and_head.clip_draw(0, 0, 50, 50, self.x, self.y, 60, 60)
+
+    def handle_event(self, event):
+       if event.type == SDL_KEYDOWN:
+            if event.key == SDLK_a:
+                self.state = self.LEFT_RUN
+                self.speed -= Isaac.RUN_SPEED_PPS
+            elif event.key == SDLK_d:
+                self.state = self.RIGHT_RUN
+                self.speed += Isaac.RUN_SPEED_PPS
+            elif event.key == SDLK_s:
+                self.state = self.DOWN_RUN
+                self.uspeed -= Isaac.RUN_SPEED_PPS
+            elif event.key == SDLK_w:
+                self.state = self.UP_RUN
+                self.uspeed += Isaac.RUN_SPEED_PPS
+       if event.type == SDL_KEYUP:
+            if event.key == SDLK_a:
+                self.state = self.STAND
+                self.speed += Isaac.RUN_SPEED_PPS
+            elif event.key == SDLK_d:
+                self.state = self.STAND
+                self.speed -= Isaac.RUN_SPEED_PPS
+            elif event.key == SDLK_s:
+                self.state = self.STAND
+                self.uspeed += Isaac.RUN_SPEED_PPS
+            elif event.key == SDLK_w:
+                self.state = self.STAND
+                self.uspeed -= Isaac.RUN_SPEED_PPS
